@@ -6,6 +6,7 @@ LOOK_DIRS = . * */* */*/*
 HEADERS = $(wildcard $(addsuffix /*.h, $(LOOK_DIRS)))
 INCLUDE_DIRS = $(sort $(dir $(HEADERS)))
 INCLUDES = $(addprefix -I, $(INCLUDE_DIRS))
+
 CFLAGS += $(INCLUDES)
 
 TARGET = test.out

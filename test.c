@@ -2,33 +2,44 @@
 
 #include "encryption/CiscoType7.h"
 
-int main(void) {
-  int flag;
+void test_cisco_type7(char *message, int length) {
+  printf("================================================================\n");
+  printf("\n");
 
-  char *message = "password";
-  int length = strlen(message);
   printf("Hashing: %s, length: %d\n", message, length);
+
   char hashed_message1[2 * length + 3];
-  flag = encode(message, hashed_message1, length);
+  int flag = encode(message, hashed_message1, length);
+
   if (flag == 0) {
     printf("Hashed Message: %s\n", hashed_message1);
+
+    char decoded_message[length + 1];
+    flag = decode(hashed_message1, decoded_message, 2 * length + 2);
+
+    if (flag == 0) {
+      printf("Decoded Message: %s\n", decoded_message);
+    } else {
+      printf("Decoding Failed\n");
+    }
+
+  } else {
+    printf("Hash Failed\n");
   }
+
+  printf("\n");
+}
+
+int main(void) {
+  char *message = "password";
+  int length = strlen(message);
+  test_cisco_type7(message, length);
 
   message = "";
   length = strlen(message);
-  printf("Hashing: %s, length: %d\n", message, length);
-  char hashed_message2[2 * length + 3];
-  flag = encode(message, hashed_message2, length);
-  if (flag == 0) {
-    printf("Hashed Message: %s\n", hashed_message2);
-  }
+  test_cisco_type7(message, length);
 
   message = "jiaofejwiAOFNAWOFÆNAWIFOÆAWJFIOAWÆJFAWOKJOIJAsjiofaj";
-  printf("Hashing: %s, length: %d\n", message, length);
   length = strlen(message);
-  char hashed_message3[2 * length + 3];
-  flag = encode(message, hashed_message3, length);
-  if (flag == 0) {
-    printf("Hashed Message: %s\n", hashed_message3);
-  }
+  test_cisco_type7(message, length);
 }

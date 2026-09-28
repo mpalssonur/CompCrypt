@@ -1,5 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra
+LDLIBS = -lm
 
 LOOK_DIRS = . * */* */*/*
 
@@ -15,7 +16,7 @@ SRC = test.c
 all: $(TARGET)
 
 $(TARGET): $(SRC) $(HEADERS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(SRC)
+	$(CC) $(CFLAGS) -o $(TARGET) $(SRC) $(LDLIBS) $(LDLIBS)
 
 clean:
 	rm -f $(TARGET)

@@ -1,6 +1,7 @@
 // Test file for development
 
 #include "algorithms/CiscoType7.h"
+#include "algorithms/md5.h"
 
 void test_cisco_type7(char *message, int length) {
   printf("================================================================\n");
@@ -9,13 +10,13 @@ void test_cisco_type7(char *message, int length) {
   printf("Hashing: %s, length: %d\n", message, length);
 
   char hashed_message1[2 * length + 3];
-  int flag = encode(message, hashed_message1, length);
+  int flag = cisco7_encode(message, hashed_message1, length);
 
   if (flag == 0) {
     printf("Hashed Message: %s\n", hashed_message1);
 
     char decoded_message[length + 1];
-    flag = decode(hashed_message1, decoded_message, 2 * length + 2);
+    flag = cisco7_decode(hashed_message1, decoded_message, 2 * length + 2);
 
     if (flag == 0) {
       printf("Decoded Message: %s\n", decoded_message);
@@ -31,15 +32,11 @@ void test_cisco_type7(char *message, int length) {
 }
 
 int main(void) {
-  char *message = "password";
-  int length = strlen(message);
-  test_cisco_type7(message, length);
-
-  message = "";
-  length = strlen(message);
-  test_cisco_type7(message, length);
-
-  message = "jiaofejwiAOFNAWOFÆNAWIFOÆAWJFIOAWÆJFAWOKJOIJAsjiofaj";
-  length = strlen(message);
-  test_cisco_type7(message, length);
+  char *msg = "The quick brown fox jumps over the lazy dog";
+  int length = strlen(msg);
+  char hash[16];
+  md5_encode(msg, hash, length);
+  for (int i = 0; i < 16; i++)
+    printf("%02x", hash[i]);
+  printf("\n");
 }

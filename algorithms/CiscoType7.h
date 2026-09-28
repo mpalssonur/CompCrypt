@@ -5,7 +5,7 @@
 
 const char *constant = "dsfd;kfoA,.iyewrkldJKDHSUBsgvca69834ncxv9873254k;fg87";
 
-int encode(char *msg, char *hash, int length) {
+int cisco7_encode(char *msg, char *hash, int length) {
 
 	if (length == 0) {
 		printf("Message must have length greater than 0\n");
@@ -45,7 +45,7 @@ int hex_to_char(char c) {
 	return -1;
 }
 
-int decode(char *hash, char* msg, int hash_length) {
+int cisco7_decode(char *hash, char* msg, int hash_length) {
 	// convert character string to numerical values.
 	int temp[hash_length/2];
 	for (int i = 0; i < hash_length/2; i++) {

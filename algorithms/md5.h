@@ -7,15 +7,16 @@ uint32_t leftrotate(uint32_t a, uint32_t b) {
 }
 
 uint32_t chars_to_word(unsigned char *msg, uint32_t g) {
-  return (((uint32_t)msg[g]) << 24) + (((uint32_t)msg[g]) << 16) +
-         (((uint32_t)msg[g]) << 8) + ((uint32_t)msg[g]);
+  return (((uint32_t)msg[g]) << 24) + (((uint32_t)msg[g + 1]) << 16) +
+         (((uint32_t)msg[g + 2]) << 8) + ((uint32_t)msg[g + 3]);
 }
 
 int md5_encode(char *msg, unsigned char *hash, int length) {
 
-  int padding = (56 - ((length + 5) % 64)) % 64;
-  int padded_length = length + padding;
+  int padded_length = ((length + 8) / 64 + 1) * 64;
   int chunk_num = padded_length / 64;
+  printf("length: %d, padded length: %d, chunk number: %d\n", length,
+         padded_length, chunk_num);
 
   unsigned char padded_msg[padded_length];
   int t = 0;
@@ -28,17 +29,15 @@ int md5_encode(char *msg, unsigned char *hash, int length) {
   padded_msg[t] = (unsigned char)0x80;
   t++;
   // Pad with 0
-  while (t < (padded_length - 4)) {
+  while (t < (padded_length - 8)) {
     padded_msg[t] = (unsigned char)0;
     t++;
   }
   // Add length in little endian form
-  unsigned char tmp;
-  while (t < padded_length) {
-    tmp = (unsigned char)(length & 0xFF);
-    padded_msg[t] = (unsigned char)(length & 0xFF);
-    t++;
-    length = length >> 8;
+  uint64_t bits_len = ((uint64_t)length) * 8;
+  for (int i = 0; i < 8; i++) {
+    padded_msg[padded_length - 8 + i] =
+        (unsigned char)((bits_len >> (i * 8)) & 0xFF);
   }
 
   uint32_t s[64] = {7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
@@ -51,7 +50,7 @@ int md5_encode(char *msg, unsigned char *hash, int length) {
     K[i] = (uint32_t)(pow(2.0, 32) * fabs(sin(i + 1.0)));
   }
 
-  uint32_t a0 = 0x67452312;
+  uint32_t a0 = 0x67452301;
   uint32_t b0 = 0xefcdab89;
   uint32_t c0 = 0x98badcfe;
   uint32_t d0 = 0x10325476;
@@ -89,30 +88,11 @@ int md5_encode(char *msg, unsigned char *hash, int length) {
   }
   printf("a0: %08x, b0: %08x, c0: %08x, d0: %08x\n", a0, b0, c0, d0);
 
-  uint32_t temp, mask, block, offset;
-  for (int i = 0; i < 16; i++) {
-    block = i / 4;
-    offset = i % 4;
-    switch (block) {
-    case 0:
-      temp = a0;
-      break;
-    case 1:
-      temp = b0;
-      break;
-    case 2:
-      temp = c0;
-      break;
-    case 3:
-      temp = d0;
-      break;
+  uint32_t temp[4] = {a0, b0, c0, d0};
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      hash[i * 4 + j] = (temp[i] >> j * 8) & 0xFF;
     }
-    if (offset == 0) {
-      mask = 0x000000FF;
-    } else
-      mask = mask * 0x100;
-
-    hash[i] = (unsigned char)(((temp & mask) >> (offset * 8)) & 0xFF);
   }
 
   return 0;

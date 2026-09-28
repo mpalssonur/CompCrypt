@@ -6,31 +6,39 @@ uint32_t leftrotate(uint32_t a, uint32_t b) {
   return (a << b) | (a >> (32 - b));
 }
 
-uint32_t chars_to_word(char *msg, uint32_t g) {
+uint32_t chars_to_word(unsigned char *msg, uint32_t g) {
   return (((uint32_t)msg[g]) << 24) + (((uint32_t)msg[g]) << 16) +
          (((uint32_t)msg[g]) << 8) + ((uint32_t)msg[g]);
 }
 
-int md5_encode(char *msg, char *hash, int length) {
+int md5_encode(char *msg, unsigned char *hash, int length) {
 
-  int padding = (56 - ((length + 1) % 64)) % 64;
+  int padding = (56 - ((length + 5) % 64)) % 64;
   int padded_length = length + padding;
   int chunk_num = padded_length / 64;
 
-  char padded_msg[padded_length];
+  unsigned char padded_msg[padded_length];
   int t = 0;
   // Copy message
   while (t < length) {
-    padded_msg[t] = msg[t];
+    padded_msg[t] = (unsigned char)msg[t];
     t++;
   }
   // Append 0x80
   padded_msg[t] = (unsigned char)0x80;
   t++;
   // Pad with 0
-  while (t < padded_length) {
+  while (t < (padded_length - 4)) {
     padded_msg[t] = (unsigned char)0;
     t++;
+  }
+  // Add length in little endian form
+  unsigned char tmp;
+  while (t < padded_length) {
+    tmp = (unsigned char)(length & 0xFF);
+    padded_msg[t] = (unsigned char)(length & 0xFF);
+    t++;
+    length = length >> 8;
   }
 
   uint32_t s[64] = {7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
@@ -105,7 +113,6 @@ int md5_encode(char *msg, char *hash, int length) {
       mask = mask * 0x100;
 
     hash[i] = (unsigned char)(((temp & mask) >> (offset * 8)) & 0xFF);
-    printf("temp: %x, mask: %08x, hash char: %02x\n", temp, mask, hash[i]);
   }
 
   return 0;

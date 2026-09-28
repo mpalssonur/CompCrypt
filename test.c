@@ -31,12 +31,24 @@ void test_cisco_type7(char *message, int length) {
   printf("\n");
 }
 
-int main(void) {
-  char *msg = "The quick brown fox jumps over the lazy dog";
-  int length = strlen(msg);
+void test_md5(char *msg, int length) {
   unsigned char hash[16];
   md5_encode(msg, hash, length);
   for (int i = 0; i < 16; i++)
     printf("%02x", hash[i]);
   printf("\n");
+}
+
+int main(void) {
+  char *msg = "The quick brown fox jumps over the lazy dog";
+  int length = strlen(msg);
+  test_md5(msg, length);
+
+  char *msg1 = "The quick brown fox jumps over the lazy dog.";
+  length = strlen(msg1);
+  test_md5(msg1, length);
+
+  char *msg2 = "";
+  length = strlen(msg2);
+  test_md5(msg2, length);
 }

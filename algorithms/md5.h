@@ -6,9 +6,11 @@ uint32_t leftrotate(uint32_t a, uint32_t b) {
   return (a << b) | (a >> (32 - b));
 }
 
-uint32_t chars_to_word(unsigned char *msg, uint32_t g) {
-  return (((uint32_t)msg[g]) << 24) + (((uint32_t)msg[g + 1]) << 16) +
-         (((uint32_t)msg[g + 2]) << 8) + ((uint32_t)msg[g + 3]);
+uint32_t chars_to_word(unsigned char *msg, uint32_t g, int j) {
+  return (((uint32_t)msg[16 * j + 4 * g])) +
+         (((uint32_t)msg[16 * j + 4 * g + 1]) << 8) +
+         (((uint32_t)msg[16 * j + 4 * g + 2]) << 16) +
+         ((uint32_t)msg[16 * j + 4 * g + 3] << 24);
 }
 
 int md5_encode(char *msg, unsigned char *hash, int length) {
@@ -56,10 +58,10 @@ int md5_encode(char *msg, unsigned char *hash, int length) {
   uint32_t d0 = 0x10325476;
 
   for (int j = 0; j < chunk_num; j++) {
-    int A = a0;
-    int B = b0;
-    int C = c0;
-    int D = d0;
+    uint32_t A = a0;
+    uint32_t B = b0;
+    uint32_t C = c0;
+    uint32_t D = d0;
     for (uint32_t i = 0; i < 64; i++) {
       uint32_t F, g;
       if (i < 16) {
@@ -75,7 +77,7 @@ int md5_encode(char *msg, unsigned char *hash, int length) {
         F = C ^ (B | (~D));
         g = (7 * i) % 16;
       }
-      F = F + A + K[i] + chars_to_word(padded_msg, g);
+      F = F + A + K[i] + chars_to_word(padded_msg, g, j);
       A = D;
       D = C;
       C = B;

@@ -1,6 +1,6 @@
 // Test file for development
 
-#include "encryption/CiscoType7.h"
+#include "algorithms/CiscoType7.h"
 
 void test_cisco_type7(char *message, int length) {
   printf("================================================================\n");
